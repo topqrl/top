@@ -1,37 +1,43 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Echoes & Faces — Interactive Archive</title>
-  <meta name="description" content="Fictional people, an on-page chatbot persona, and a pixel-art face generator — all local and self-contained." />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Atlas — Chamber of Echoes</title>
+  <meta name="description" content="An expanded interactive: Chamber of Echoes, larger pixel faces, and a fictional pixel-world sandbox (simulated only)." />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&family=VT323&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#050606;--card:#0b0b09;--accent:#8ff3d1;--muted:#7a7a7a}
+    :root{--bg:#040405;--card:#0b0b09;--accent:#8ff3d1;--muted:#7a7a7a;--panel:#07110f}
     *{box-sizing:border-box}
-    body{margin:0;font-family:'Space Mono',monospace;background:linear-gradient(180deg,#020202,#071010);color:var(--accent);padding:20px}
-    .wrap{max-width:1200px;margin:0 auto}
+    body{margin:0;font-family:'Space Mono','VT323',monospace;background:linear-gradient(180deg,#020202,#070707);color:var(--accent);padding:18px}
+    .wrap{max-width:1300px;margin:0 auto}
     header{display:flex;align-items:center;justify-content:space-between}
     h1{margin:0}
     .grid{display:grid;grid-template-columns:1fr 420px;gap:16px;margin-top:16px}
     .card{background:var(--card);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+    .muted{color:var(--muted);font-size:13px}
 
-    /* people table */
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
-    button.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:6px;color:var(--accent);cursor:pointer}
+    /* chamber */
+    .chamber{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .echo{padding:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border-radius:6px;cursor:pointer}
 
-    /* chat */
-    .chat{display:flex;flex-direction:column;height:520px}
-    .messages{flex:1;overflow:auto;padding:8px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
-    .input{display:flex;gap:8px;margin-top:8px}
-    .input input{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--accent)}
+    /* large pixel faces */
+    .face-ui{display:flex;gap:12px;align-items:center}
+    canvas.big{width:320px;height:320px;border-radius:6px;background:#050605;border:1px solid rgba(255,255,255,0.03);image-rendering:pixelated}
+    .face-controls{display:flex;flex-direction:column;gap:8px}
 
-    /* pixel art */
-    .pixel-ui{display:flex;gap:8px;align-items:center;margin-top:8px}
-    .pixel-canvas{image-rendering:pixelated;border-radius:6px;background:#0a0a09;border:1px solid rgba(255,255,255,0.03)}
+    /* world sandbox */
+    .world{display:grid;grid-template-columns:1fr 240px;gap:12px}
+    .map{background:#050909;padding:8px;border-radius:6px;overflow:auto}
+    .map-grid{display:grid;grid-template-columns:repeat(40,12px);grid-auto-rows:12px;gap:1px}
+    .tile{width:12px;height:12px;background:#0d2020;border-radius:2px;cursor:pointer}
+    .controls{display:flex;gap:8px;margin-top:8px}
 
-    footer{margin-top:18px;color:var(--muted);font-size:13px}
+    /* network sim */
+    .net{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+    .node{height:56px;background:#081212;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+    footer{margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
 
     @media (max-width:980px){.grid{grid-template-columns:1fr}}
   </style>
@@ -40,207 +46,175 @@
   <div class="wrap">
     <header>
       <div>
-        <h1>Echoes & Faces</h1>
-        <div style="color:var(--muted);font-size:13px">Fictional people, a local chatbot persona, and a pixel-face generator.</div>
+        <h1>Atlas — Chamber of Echoes</h1>
+        <div class="muted">expanded: chamber, larger pixel faces, a fictional pixel-world sandbox, and a simulated network node game.</div>
       </div>
-      <div style="text-align:right;color:var(--muted);font-size:13px">Note: all people & addresses below are fictional — no real addresses are used.</div>
+      <div class="muted">Safety: All locations, people, and effects are fictional or simulated. This page will not access or control real devices.</div>
     </header>
 
     <div class="grid">
-      <div>
+      <main>
         <div class="card">
-          <h3 style="margin-top:0">Registry — fictional inhabitants</h3>
-          <div style="margin-bottom:8px;color:var(--muted);font-size:13px">A playful, interactive database of invented people tied to fictional locations. You can inspect each profile or ask the chatbot about the echoes related to them.</div>
+          <h3 style="margin-top:0">Chamber of Echoes</h3>
+          <div class="muted">A dense collection of fragments. Click an echo to expand and discover linked threads and generated faces.</div>
+          <div style="margin-top:10px" class="chamber" id="chamber"></div>
+        </div>
 
-          <table id="people">
-            <thead><tr><th>Name</th><th>Location</th><th>Note</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table>
-
-          <div style="margin-top:10px;display:flex;gap:8px">
-            <button class="btn" onclick="addBatch()">add batch</button>
-            <button class="btn" onclick="shufflePeople()">shuffle</button>
-            <button class="btn" onclick="exportData()">export JSON</button>
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">Pixel-World Sandbox</h3>
+          <div class="muted">This is a fictional sandbox: drop "resonance seeds" (bomb-like) to alter tile states and observe purely simulated, invented impact metrics.</div>
+          <div class="controls">
+            <button class="btn" id="seedMode">mode: seed</button>
+            <button class="btn" id="clearMap">clear</button>
+            <button class="btn" id="randomize">randomize pop</button>
+          </div>
+          <div class="world" style="margin-top:10px">
+            <div class="map"><div class="map-grid" id="mapGrid"></div></div>
+            <div class="card" style="padding:8px">
+              <div><strong>Map stats</strong></div>
+              <div class="muted" id="mapStats">tiles: 0 · seeded: 0</div>
+              <div style="margin-top:8px">Simulated impact: <div id="impact" style="margin-top:6px;color:#ffd4b3">0 (fictional)</div></div>
+            </div>
           </div>
         </div>
 
         <div class="card" style="margin-top:12px">
-          <h3 style="margin-top:0">Echo Database</h3>
-          <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Each person has 'echoes' — short fragments, timestamps and tags. Explore or append to them. All data is local to your browser.</div>
-          <div id="echoArea"></div>
+          <h3 style="margin-top:0">Network Simulation (Safe)</h3>
+          <div class="muted">A local, fictional node-capture mini-game. Nodes are synthetic — capturing a node reveals a generated pixel face and synthetic metadata.</div>
+          <div style="margin-top:8px" class="net" id="net"></div>
+          <div style="margin-top:8px;display:flex;gap:8px"><button class="btn" id="scanNet">scan</button><button class="btn" id="captureAll">capture all</button></div>
         </div>
 
-      </div>
+      </main>
 
       <aside>
-        <div class="card chat">
-          <h3 style="margin:0 0 8px 0">Chat with Mina (persona)</h3>
-          <div class="messages" id="messages"></div>
-          <div class="input">
-            <input id="chatIn" placeholder="Say something to Mina... (she's fictional)" />
-            <button class="btn" onclick="sendChat()">send</button>
+        <div class="card">
+          <h3 style="margin-top:0">Pixel Faces (large)</h3>
+          <div class="face-ui">
+            <canvas id="faceBig" class="big" width="256" height="256"></canvas>
+            <div class="face-controls">
+              <label class="muted">resolution</label>
+              <select id="faceRes"><option>16</option><option selected>32</option><option>64</option></select>
+              <button class="btn" id="genBig">generate</button>
+              <button class="btn" id="downloadBig">download</button>
+            </div>
           </div>
-          <div style="margin-top:8px;color:var(--muted);font-size:12px">Mina is a local, rule-based persona — no external AI services are used. She roleplays as a resident archivist and speaks only in-character.</div>
         </div>
 
         <div class="card" style="margin-top:12px">
-          <h3 style="margin-top:0">Pixel Faces</h3>
-          <canvas id="pixel" width="128" height="128" class="pixel-canvas"></canvas>
-          <div class="pixel-ui">
-            <button class="btn" onclick="genFace()">generate</button>
-            <button class="btn" onclick="downloadFace()">download</button>
-            <label style="color:var(--muted);font-size:13px">size</label>
-            <select id="pxsize"><option>8</option><option selected>16</option><option>32</option></select>
-          </div>
-          <div style="margin-top:8px;color:var(--muted);font-size:12px">Faces are algorithmically generated pixel-art portraits. They are abstract and fictional.</div>
+          <h3 style="margin-top:0">Echo viewer</h3>
+          <div id="echoView" class="muted">click an echo from the chamber to inspect</div>
+          <div style="margin-top:8px"><button class="btn" id="revealAll">reveal hints</button></div>
         </div>
+
       </aside>
     </div>
 
-    <footer>Local demo — all data stays in your browser. Do not use for real-world deception.</footer>
+    <footer>Fictional simulation only. This page does not access or control real-world devices or networks.</footer>
   </div>
 
   <script>
-    /*
-      IMPORTANT SAFETY NOTE (and design choice):
-      - I will NOT create false records that tie fabricated people to real, specific private addresses or real individuals.
-      - This page instead uses entirely fictional place names (e.g. "Old Hollow", "North Meridian") so no real address is implicated.
-      - The chatbot is a local, scripted persona (no external API calls). It roleplays safely and cannot be used to plan or commit wrongdoing.
-    */
+    // SAFETY: Refusals performed in conversation — the following features are intentionally fictional and simulated.
+    // I refused to implement anything that would access, control, or harm real devices or people. Instead: safe simulated games.
 
-    // --- data store (local only) ---
-    const peopleTbody = document.querySelector('#people tbody');
-    const echoArea = document.getElementById('echoArea');
+    // utilities
+    function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+    function uid(){return 'id'+Math.random().toString(36).slice(2,8)}
 
-    let people = [];
-
-    const fictionalPlaces = [
-      'Old Hollow', 'North Meridian', 'Grey Wharf', 'Upper Tangle', 'Salt Verge', 'Moonford', 'Eastgate', 'Riverspan'
-    ];
-
-    const firstNames = ['Ada','Mina','Jonah','Etta','Silas','Rook','Ivy','Cormac','Nora','Eloi','Thess','Bram'];
-    const lastNames = ['Holloway','Marrow','Evers','Locke','Dun','Grey','Fletcher','Cairn','Bexley','Arden'];
-
-    function randItem(a){return a[Math.floor(Math.random()*a.length)];}
-
-    function makePerson(){
-      const name = randItem(firstNames) + ' ' + randItem(lastNames);
-      const location = randItem(fictionalPlaces) + ' — district ' + Math.floor(Math.random()*12+1);
-      const id = 'p_'+Math.random().toString(36).slice(2,9);
-      const echoes = [];
-      // seed a few echoes
-      for(let i=0;i<Math.floor(Math.random()*4)+1;i++) echoes.push({time:Date.now()-Math.floor(Math.random()*1000*60*60*24*90), text:randEcho(), tags:sampleTags()});
-      return {id,name,location,echoes};
+    // -------- Chamber of Echoes --------
+    const chamberEl = document.getElementById('chamber');
+    const echoView = document.getElementById('echoView');
+    const sampleEchoes = [];
+    for(let i=0;i<36;i++){
+      sampleEchoes.push({id:uid(), text:['a folded page','a distant bell','numbers in the margin','a photograph half-burned','a scratched name','wind through metal'][Math.floor(Math.random()*6)], links: rnd(0,4)});
     }
+    function renderChamber(){ chamberEl.innerHTML=''; sampleEchoes.forEach(e=>{
+      const d=document.createElement('div'); d.className='echo'; d.textContent = e.text; d.onclick = ()=>openEcho(e); chamberEl.appendChild(d);
+    }); }
+    function openEcho(e){ echoView.innerHTML = '<strong>echo</strong><div style="margin-top:6px">'+e.text+'</div><div class="muted" style="margin-top:6px">linked threads: '+e.links+'</div>'; }
+    renderChamber();
 
-    function randEcho(){
-      const fragments = ['a folded paper','a half-remembered song','the smell of rain on tar','a ledger with names crossed out','an empty chair by the window','a tally of uncounted things'];
-      return randItem(fragments);
-    }
-    function sampleTags(){ const t=['paper','sound','photo','note','mark']; return [randItem(t)]; }
-
-    function renderPeople(){
-      peopleTbody.innerHTML='';
-      people.forEach(p=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${p.name}</td><td>${p.location}</td><td style="font-size:13px;color:var(--muted)">${p.echoes[0]?p.echoes[0].text:'-'}</td><td><button class='btn' onclick="viewPerson('${p.id}')">view</button></td>`;
-        peopleTbody.appendChild(tr);
-      });
-    }
-
-    function viewPerson(id){
-      const p = people.find(x=>x.id===id); if(!p) return;
-      echoArea.innerHTML = `<h4>${p.name}</h4><div class="meta">${p.location}</div><div style="margin-top:8px"><strong>echoes</strong></div>`;
-      p.echoes.slice().reverse().forEach((e,idx)=>{
-        const d = document.createElement('div'); d.style.padding='8px'; d.style.marginTop='8px'; d.style.background='rgba(255,255,255,0.01)'; d.style.borderRadius='6px';
-        d.innerHTML = `<div style="font-size:13px">${new Date(e.time).toLocaleString()}</div><div style="margin-top:6px">${e.text}</div><div style='margin-top:6px;font-size:12px;color:var(--muted)'>tags: ${e.tags.join(', ')}</div><div style='margin-top:6px'><button class='btn' onclick="appendEcho('${p.id}')">append echo</button></div>`;
-        echoArea.appendChild(d);
-      });
-    }
-
-    window.appendEcho = function(id){ const p = people.find(x=>x.id===id); if(!p) return; p.echoes.push({time:Date.now(), text:randEcho(), tags:sampleTags()}); renderPeople(); viewPerson(id); save(); }
-
-    function addBatch(n=8){ for(let i=0;i<n;i++) people.push(makePerson()); renderPeople(); save(); }
-    function shufflePeople(){ people = people.sort(()=>Math.random()-0.5); renderPeople(); }
-    function exportData(){ const blob = new Blob([JSON.stringify(people,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='fictional-people.json'; a.click(); }
-
-    function save(){ try{ localStorage.setItem('ef.people', JSON.stringify(people)); }catch(e){} }
-    function load(){ try{ const s=localStorage.getItem('ef.people'); if(s){ people=JSON.parse(s); renderPeople(); return true; } }catch(e){} return false; }
-
-    // initialize
-    if(!load()) addBatch(10);
-
-    // --- Chatbot persona (local, scripted) ---
-    // Mina is a roleplay archivist who replies based on patterns and on the registry data.
-    const messagesEl = document.getElementById('messages');
-    function postMessage(who,text){ const d=document.createElement('div'); d.style.margin='8px 0'; d.innerHTML = `<div style='font-size:13px;color:${who==='mina'?'#ffdca3':'#bfeee0'}'><strong>${who==='mina'?'Mina':'You'}</strong> <span style='font-size:12px;color:var(--muted)'>${new Date().toLocaleTimeString()}</span></div><div style='margin-top:6px'>${escapeHtml(text)}</div>`; messagesEl.prepend(d); }
-
-    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    function sendChat(){ const inEl=document.getElementById('chatIn'); const t=inEl.value.trim(); if(!t) return; postMessage('you',t); inEl.value=''; // generate Mina response
-      setTimeout(()=>{ const resp = minaRespond(t); postMessage('mina',resp); }, 450 + Math.random()*400);
-    }
-
-    function minaRespond(txt){ txt = txt.toLowerCase(); // basic pattern responses
-      if(/who|name/.test(txt)) return 'I am Mina, a keeper of small echoes. I listen.';
-      if(/where|live/.test(txt)) return 'Places here are layered. I prefer to speak in fragments about them.';
-      if(/echo|echoes|what happened/.test(txt)) return sampleEchoReply();
-      if(/show|list|people/.test(txt)) return `There are ${people.length} entries in the registry. Ask me about a name.`;
-      if(/help|what can you do/.test(txt)) return 'I can describe registry fragments, recite a short echo, or suggest a name at random.';
-      if(/random|name/.test(txt)) { const p = randItem(people); return `Try ${p.name} of ${p.location}.`; }
-      // fallback: gentle, in-character answer built from registry
-      return randItem(['Fragments gather at the corners.','Numbers and stains, mostly.','Listen: the ledger hums at dusk.','I can offer a hint: count the small scratches.']);
-    }
-
-    function sampleEchoReply(){
-      // pick a recent echo from random person
-      const all = people.flatMap(p=>p.echoes.map(e=>({p,text:e.text,time:e.time}))); if(!all.length) return 'There are no echoes recorded.';
-      const pick = all[Math.floor(Math.random()*all.length)]; return `An echo from ${pick.p.name}: "${pick.text}" (recorded ${timeAgo(pick.time)})`;
-    }
-
-    function timeAgo(ts){ const s=Math.floor((Date.now()-ts)/1000); if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
-
-    // allow clicking a table row to ask Mina about that person
-    window.viewPerson = function(id){ viewPerson(id); const p = people.find(x=>x.id===id); if(p){ setTimeout(()=>{ postMessage('you','Tell me about '+p.name); postMessage('mina', `I see ${p.name}. A few echoes: ${p.echoes.slice(0,3).map(e=>e.text).join('; ')}`); },200);} }
-
-    // --- Pixel face generator ---
-    const px = document.getElementById('pixel'); const pxCtx = px.getContext('2d');
-    function genFace(){ const size = parseInt(document.getElementById('pxsize').value,10) || 16; const upscale = Math.floor(128/size);
-      // create small image data
+    // -------- large pixel face generator (improved but still abstract) --------
+    const faceCanvas = document.getElementById('faceBig'); const fctx = faceCanvas.getContext('2d');
+    function genLargeFace(){
+      const size = parseInt(document.getElementById('faceRes').value,10) || 32;
       const w = size, h = size; const img = new Uint8ClampedArray(w*h*4);
-      // palette: skin tones + hair + features
-      const skins = [[226,188,150],[200,150,110],[150,110,90]]; const hairs=[[30,20,10],[60,30,20],[10,40,30]]; const eyes=[ [20,20,20] ];
-      const skin = randItem(skins); const hair = randItem(hairs); const eye = randItem(eyes);
-      // fill background transparent
+      // palettes
+      const skinPal = [[236,196,160],[210,160,120],[180,130,95]];
+      const hairPal = [[40,30,20],[20,20,40],[60,35,20]];
+      const skin = skinPal[Math.floor(Math.random()*skinPal.length)];
+      const hair = hairPal[Math.floor(Math.random()*hairPal.length)];
+
+      // paint base
       for(let y=0;y<h;y++){
         for(let x=0;x<w;x++){
           const i=(y*w+x)*4;
-          // base: skin area in center
-          const cx = x - w/2; const cy = y - h/3; const r = Math.sqrt(cx*cx+cy*cy);
-          if(r < w/2.2){ img[i]=skin[0]; img[i+1]=skin[1]; img[i+2]=skin[2]; img[i+3]=255; } else { img[i]=8; img[i+1]=8; img[i+2]=8; img[i+3]=255; }
+          const cx = x - w/2, cy = y - h/2.6; const r = Math.sqrt(cx*cx+cy*cy);
+          if(r < w/2.2){ img[i]=skin[0]; img[i+1]=skin[1]; img[i+2]=skin[2]; img[i+3]=255; } else { img[i]=10; img[i+1]=10; img[i+2]=10; img[i+3]=255; }
         }
       }
-      // hair: top band
-      for(let y=0;y<Math.floor(h*0.32);y++) for(let x=1;x<w-1;x++){ const i=(y*w+x)*4; img[i]=hair[0]; img[i+1]=hair[1]; img[i+2]=hair[2]; img[i+3]=255; }
+      // hair cap
+      for(let y=0;y<Math.floor(h*0.34);y++) for(let x=0;x<w;x++){ const i=(y*w+x)*4; img[i]=hair[0]; img[i+1]=hair[1]; img[i+2]=hair[2]; img[i+3]=255; }
       // eyes
-      const eyY = Math.floor(h*0.45); const leX = Math.floor(w*0.35); const reX = Math.floor(w*0.65);
-      setPixel(img,w,leX,eyY,eye[0][0],eye[0][1],eye[0][2]); setPixel(img,w,reX,eyY,eye[0][0],eye[0][1],eye[0][2]);
+      const eyY = Math.floor(h*0.45); const leX = Math.floor(w*0.36); const reX = Math.floor(w*0.64);
+      setPx(img,w,leX,eyY,10,10,10); setPx(img,w,reX,eyY,10,10,10);
       // mouth
-      const mY = Math.floor(h*0.65); for(let x=Math.floor(w*0.38);x<Math.floor(w*0.62);x++) setPixel(img,w,x,mY,120,30,30);
+      const mY = Math.floor(h*0.7); for(let x=Math.floor(w*0.38);x<Math.floor(w*0.62);x++) setPx(img,w,x,mY,120,30,30);
 
-      // draw to canvas scaled up
-      pxCtx.imageSmoothingEnabled = false; const imageData = new ImageData(img,w,h); // draw to temp canvas
-      const tmp = document.createElement('canvas'); tmp.width=w; tmp.height=h; const tctx=tmp.getContext('2d'); tctx.putImageData(imageData,0,0);
-      pxCtx.clearRect(0,0,128,128); pxCtx.imageSmoothingEnabled=false; pxCtx.drawImage(tmp,0,0,128,128);
+      // subtle asymmetry for realism
+      if(Math.random()>0.6) setPx(img,w,leX-1,eyY+1,20,20,20);
+
+      // draw scaled
+      const tmp = document.createElement('canvas'); tmp.width=w; tmp.height=h; const tctx=tmp.getContext('2d'); tctx.putImageData(new ImageData(img,w,h),0,0);
+      fctx.imageSmoothingEnabled=false; fctx.clearRect(0,0,256,256); fctx.drawImage(tmp,0,0,256,256);
     }
-    function setPixel(buf,w,x,y,r,g,b){ if(x<0||y<0||x>=w) return; const i=(y*w+x)*4; buf[i]=r; buf[i+1]=g; buf[i+2]=b; buf[i+3]=255; }
-    function downloadFace(){ const a=document.createElement('a'); a.href = px.toDataURL('image/png'); a.download='face.png'; a.click(); }
+    function setPx(buf,w,x,y,r,g,b){ if(x<0||y<0||x>=w||y>=Math.sqrt(buf.length/4)) return; const i=(y*w+x)*4; buf[i]=r;buf[i+1]=g;buf[i+2]=b;buf[i+3]=255; }
+    document.getElementById('genBig').addEventListener('click',genLargeFace);
+    document.getElementById('downloadBig').addEventListener('click',()=>{ const a=document.createElement('a'); a.href=faceCanvas.toDataURL(); a.download='face.png'; a.click(); });
+    genLargeFace();
 
-    // seed for immediate UI
-    genFace();
+    // -------- pixel-world sandbox (fictional impact only) --------
+    const mapGrid = document.getElementById('mapGrid'); const MAP_W=40, MAP_H=20; const tiles = []; let seeded = 0;
+    function initMap(){ mapGrid.innerHTML=''; tiles.length=0; for(let y=0;y<MAP_H;y++) for(let x=0;x<MAP_W;x++){ const id= 't'+x+'_'+y; const pop = rnd(0,1200); const el=document.createElement('div'); el.className='tile'; el.dataset.id=id; el.dataset.x=x; el.dataset.y=y; el.dataset.pop=pop; el.dataset.state='clear'; el.title = 'pop: '+pop; el.onclick = ()=>tileClicked(el); mapGrid.appendChild(el); tiles.push(el); } updateMapStats(); }
+    function tileClicked(el){ if(mode==='seed'){ if(el.dataset.state!=='seeded'){ el.dataset.state='seeded'; el.style.background='#b34b3b'; seeded++; updateMapStats(); computeImpact(); } } else { // inspect
+        alert('tile '+el.dataset.id+' · pop: '+el.dataset.pop+' · state: '+el.dataset.state);
+      } }
+    function clearMap(){ tiles.forEach(t=>{ t.dataset.state='clear'; t.style.background='#0d2020'; }); seeded=0; updateMapStats(); computeImpact(); }
+    function randomizePop(){ tiles.forEach(t=>{ const p = rnd(0,2000); t.dataset.pop=p; t.title='pop: '+p; }); computeImpact(); }
+    function updateMapStats(){ document.getElementById('mapStats').textContent = 'tiles: '+(MAP_W*MAP_H)+' · seeded: '+seeded; }
+    function computeImpact(){ // purely fictional calculation
+      let total=0; tiles.forEach(t=>{ if(t.dataset.state==='seeded') total += Math.floor(parseInt(t.dataset.pop,10)* (0.12 + Math.random()*0.6)); }); document.getElementById('impact').textContent = total + ' (fictional)'; }
+    let mode='seed'; document.getElementById('seedMode').addEventListener('click', ()=>{ mode = (mode==='seed')?'inspect':'seed'; document.getElementById('seedMode').textContent = 'mode: '+mode; });
+    document.getElementById('clearMap').addEventListener('click', clearMap); document.getElementById('randomize').addEventListener('click', randomizePop);
+    initMap();
 
-    // helpers
-    function log(s){ console.log('[echoes] ',s); }
+    // -------- network simulation (safe) --------
+    const netEl = document.getElementById('net'); const NODE_COUNT=12; const nodes=[];
+    function initNet(){ netEl.innerHTML=''; nodes.length=0; for(let i=0;i<NODE_COUNT;i++){ const n={id:uid(), captured:false}; const el=document.createElement('div'); el.className='node'; el.textContent='node '+(i+1); el.onclick = ()=>captureNode(n,el); netEl.appendChild(el); nodes.push({meta:n,el}); } }
+    function captureNode(n,el){ if(n.captured) return; n.captured=true; el.style.background='#2b5a4a'; // reveal generated face
+      const face = genFaceData(); el.innerHTML = ''; const img = document.createElement('img'); img.src = faceToDataURL(face); img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover'; el.appendChild(img); }
+    function genFaceData(){ // produce a 32x32 pixel face array and return as tiny canvas
+      const s=32; const buf = new Uint8ClampedArray(s*s*4);
+      const skin=[210,170,130]; const hair=[50,30,20];
+      for(let y=0;y<s;y++) for(let x=0;x<s;x++){ const i=(y*s+x)*4; const cx=x-s/2, cy=y-s/2.6; const r=Math.sqrt(cx*cx+cy*cy); if(r<s/2.2){ buf[i]=skin[0];buf[i+1]=skin[1];buf[i+2]=skin[2];buf[i+3]=255;} else {buf[i]=8;buf[i+1]=8;buf[i+2]=8;buf[i+3]=255;} }
+      for(let y=0;y<Math.floor(s*0.32);y++) for(let x=0;x<s;x++){ const i=(y*s+x)*4; buf[i]=hair[0];buf[i+1]=hair[1];buf[i+2]=hair[2];buf[i+3]=255; }
+      // eyes/mouth
+      setBufPixel(buf,s,Math.floor(s*0.36),Math.floor(s*0.45),10,10,10); setBufPixel(buf,s,Math.floor(s*0.64),Math.floor(s*0.45),10,10,10);
+      for(let x=Math.floor(s*0.38);x<Math.floor(s*0.62);x++) setBufPixel(buf,s,x,Math.floor(s*0.7),120,30,30);
+      // return ImageData
+      const c = document.createElement('canvas'); c.width=s;c.height=s; const cctx=c.getContext('2d'); cctx.putImageData(new ImageData(buf,s,s),0,0); return c; }
+    function setBufPixel(buf,w,x,y,r,g,b){ if(x<0||y<0||x>=w) return; const i=(y*w+x)*4; buf[i]=r;buf[i+1]=g;buf[i+2]=b;buf[i+3]=255; }
+    function faceToDataURL(c){ return c.toDataURL(); }
+    document.getElementById('scanNet').addEventListener('click', ()=>{ alert('scan complete — '+NODE_COUNT+' synthetic nodes found (fictional)'); });
+    document.getElementById('captureAll').addEventListener('click', ()=>{ nodes.forEach(n=>{ if(!n.meta.captured) captureNode(n.meta,n.el); }); });
+    initNet();
+
+    // helper: gen a small face for node on load
+    function genFaceDataURL(){ const canvas = genFaceData(); return canvas.toDataURL(); }
+
+    // reveal hints
+    document.getElementById('revealAll').addEventListener('click', ()=>{ sampleEchoes.forEach((e,i)=>{ const el = chamberEl.children[i]; el.style.background='linear-gradient(90deg,#123 10%, #234 90%)'; }); });
+
   </script>
 </body>
 </html>
