@@ -3,273 +3,252 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>—</title>
-  <meta name="description" content="" />
+  <title>Resonant Ledger</title>
+  <meta name="description" content="An interactive, mysterious archive of echoes, threads and visual artifacts — a single-file exploratory experience." />
 
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#050506; --paper:#0b0b06; --accent:#9ff0d6; --muted:#6f6f6f; --sepia: #6b4f2b;
-      --frame-w:1100px;
+      --bg:#060507; --panel:#0b0b06; --accent:#8ff3d1; --muted:#7b7b7b; --sepia:#6b4f2b; --glass:rgba(255,255,255,0.02);
+      --maxw:1200px;
+      --ui-size:14px;
     }
     *{box-sizing:border-box}
     html,body{height:100%;}
-    body{margin:0;background:radial-gradient(circle at 8% 8%, rgba(18,18,18,0.6), transparent 12%), linear-gradient(180deg,#040404,#0b0b06 70%);color:var(--accent);font-family:'Share Tech Mono','VT323',monospace;overflow-y:scroll;padding:28px}
+    body{margin:0;background:radial-gradient(circle at 12% 10%, rgba(18,18,16,0.6), transparent 12%), linear-gradient(180deg,#030303,#0b0b06 82%);color:var(--accent);font-family:'Space Mono','VT323',monospace;overflow-y:auto;padding:28px}
 
-    /* long parchment container */
-    .frame{width:min(var(--frame-w),96vw);margin:0 auto;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:3px solid rgba(255,255,255,0.03);box-shadow:0 30px 120px rgba(0,0,0,0.9);position:relative;border-radius:8px;padding:18px}
+    .wrap{width:min(var(--maxw),96vw);margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;padding:12px;border-radius:8px}
+    .mark{width:72px;height:72px;border-radius:10px;background:linear-gradient(180deg,#d9d9d9,#bfbfbf);color:var(--panel);display:flex;align-items:center;justify-content:center;font-size:22px}
+    h1{margin:0;font-size:30px}
+    .lead{color:var(--muted);font-size:13px}
 
-    header{display:flex;gap:14px;align-items:center;padding:10px 12px;border-bottom:1px dashed rgba(255,255,255,0.02)}
-    .sig{width:64px;height:64px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--paper);background:linear-gradient(180deg,#d9d9d9,#bfbfbf);font-size:20px}
-    h1{font-size:28px;margin:0}
-    .sub{font-size:12px;color:var(--muted)}
+    /* hero canvas area */
+    .hero{margin-top:18px;position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03);height:420px}
+    canvas{display:block;width:100%;height:100%}
+    .overlay{position:absolute;inset:0;padding:18px;pointer-events:none}
 
-    /* page layout: one long column with sections */
-    main{padding:18px}
-    section{padding:18px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
-    h2{font-size:20px;margin:6px 0}
-    p{color:var(--accent);line-height:1.5;max-width:70ch}
+    /* controls */
+    .controls{display:flex;gap:8px;position:absolute;right:18px;top:18px;pointer-events:auto}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--accent);padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px}
 
-    /* gallery */
-    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
-    .photo{position:relative;height:180px;overflow:hidden;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:#0a0a08;display:flex;align-items:center;justify-content:center}
-    .photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(60%) contrast(90%) saturate(70%) sepia(40%);opacity:0.95}
-    .caption{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,0.45);padding:6px 8px;border-radius:4px;font-size:12px}
+    /* content grid */
+    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+    .archive{background:var(--panel);padding:16px;border-radius:8px;min-height:480px}
+    .side{padding:12px;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(0,0,0,0.03));border:1px solid rgba(255,255,255,0.02)}
 
-    /* wide single items */
-    .wide{grid-column:1/-1;height:360px}
+    /* threads */
+    .thread{padding:12px;border-radius:6px;margin-bottom:12px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px dashed rgba(255,255,255,0.02);cursor:pointer}
+    .thread h3{margin:0;font-size:16px}
+    .thread p{margin:8px 0 0 0;color:var(--muted);font-size:13px}
 
-    /* metadata style */
-    .meta{font-size:12px;color:var(--muted);margin-top:8px}
+    /* ledger entries */
+    .entries{margin-top:8px;display:flex;flex-direction:column;gap:10px}
+    .entry{padding:10px;border-radius:6px;background:#071107;border:1px solid rgba(255,255,255,0.02);font-size:14px}
 
-    /* long text columns */
-    .columns{column-count:2;column-gap:36px;max-width:90ch}
+    /* image strip */
+    .strip{display:flex;gap:10px;overflow-x:auto;padding:8px 6px;margin-top:12px}
+    .thumb{min-width:160px;height:110px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:#0a0a08;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .thumb img{width:100%;height:100%;object-fit:cover;filter:grayscale(60%) sepia(30%) contrast(90%)}
 
-    /* modal viewer for images */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);z-index:200}
-    .modal.open{display:flex}
-    .modal .view{width:min(860px,94vw);height:min(80vh,760px);background:#060605;border-radius:6px;padding:12px;position:relative}
-    .modal img{width:100%;height:100%;object-fit:contain;filter:grayscale(40%) sepia(30%) contrast(95%)}
-    .close{position:absolute;right:10px;top:8px;border:0;background:transparent;color:var(--muted);font-size:14px;cursor:pointer}
+    /* reveal zone */
+    .reveal{margin-top:12px;padding:12px;border-radius:8px;background:linear-gradient(180deg,#071107,#060604);border:1px solid rgba(255,255,255,0.02)}
+    .hint{font-size:13px;color:var(--muted)}
+    .secret{display:none;margin-top:10px;padding:10px;background:#0e1b1b;border-radius:6px;color:#d9f9ee}
+    .secret.open{display:block}
 
-    /* sidebar-ish bottom area for clues */
-    .bottom{display:grid;grid-template-columns:1fr 320px;gap:20px;margin-top:18px}
-    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.03));padding:12px;border-radius:6px;border:1px solid rgba(255,255,255,0.02)}
+    footer{margin-top:22px;color:var(--muted);font-size:13px;text-align:center}
 
-    /* cipher blocks look and feel */
-    .cipher{font-family:'Share Tech Mono',monospace;background:#071107;padding:10px;border-radius:4px;border:1px solid rgba(255,255,255,0.02);word-break:break-all}
-    .controls{display:flex;gap:8px;margin-top:10px}
-    button{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:4px;color:var(--accent);cursor:pointer}
-
-    /* faux oldpaper photo frame */
-    .frame-edge{box-shadow:inset 0 0 0 6px rgba(255,255,255,0.02), 0 10px 40px rgba(0,0,0,0.8)}
-    .polaroid{background:#efe7d6;padding:8px;border-radius:6px;display:flex;flex-direction:column;align-items:center}
-    .polaroid img{width:100%;height:auto;display:block}
-    .polaroid .note{font-size:12px;color:#4b3b2b;margin-top:8px}
-
-    footer{font-size:12px;color:var(--muted);padding:12px 6px}
-
-    @media (max-width:1000px){.gallery{grid-template-columns:repeat(2,1fr)}.bottom{grid-template-columns:1fr}}
-    @media (max-width:640px){.gallery{grid-template-columns:1fr}.columns{column-count:1}}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}.side{order:2}}
   </style>
 </head>
 <body>
-  <div class="frame" role="main" aria-label="archive">
+  <div class="wrap">
     <header>
-      <div class="sig">∴</div>
+      <div class="mark">R†L</div>
       <div>
-        <h1>—</h1>
-        <div class="sub"> </div>
+        <h1>Resonant Ledger</h1>
+        <div class="lead">an exploratory surface of echoes, threads and artifacts — poke, press, and observe.</div>
       </div>
     </header>
 
-    <main>
-      <!-- Section: introduction, intentionally vague -->
-      <section>
-        <h2>—</h2>
-        <div class="columns">
-          <p>Lines. Threads. A surface that remembers impressions. The page is long enough to keep some things in shadow and let others peek. Spend as long as you like — the site will not tell you what it means.</p>
-
-          <p>Images are aged and worn. Captions are hints or misdirections. Files exist as names: handle them as paper scraps rather than instructions.</p>
+    <div class="hero" aria-hidden="false">
+      <canvas id="viz"></canvas>
+      <div class="overlay">
+        <div class="controls">
+          <button class="btn" id="scatter">scatter</button>
+          <button class="btn" id="weave">weave</button>
+          <button class="btn" id="calm">calm</button>
         </div>
-      </section>
-
-      <!-- Section: gallery of "old" photos (placeholder images with styling) -->
-      <section>
-        <h2>collection</h2>
-        <p class="meta">archival images, rendered to feel older. click any image to open a larger view.</p>
-
-        <div class="gallery" id="gallery">
-          <!-- Use a set of embedded SVG placeholders that look like old photos -->
-
-          <div class="photo frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%23010100'/><g fill='%23bfbfbf' opacity='0.08'><rect x='30' y='30' width='740' height='540' /></g><text x='50' y='80' fill='%23cccccc' font-family='monospace' font-size='20'>[untitled 1923]</text></svg>" alt="old photo 1" data-caption="untitled — 1923" onclick="openModal(this)"><div class="caption">untitled — 1923</div></div>
-
-          <div class="photo frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%23020202'/><circle cx='400' cy='240' r='160' fill='%23a9a9a9' opacity='0.08'/><text x='40' y='80' fill='%23d0d0d0' font-family='monospace' font-size='20'>[unknown group]</text></svg>" alt="old photo 2" data-caption="unknown group" onclick="openModal(this)"><div class="caption">unknown group</div></div>
-
-          <div class="photo wide frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='600'><rect width='100%' height='100%' fill='%23050707'/><g fill='%23dfdfdf' opacity='0.06'><rect x='40' y='40' width='1120' height='520' /></g><text x='60' y='80' fill='%23dcdcdc' font-family='monospace' font-size='22'>[panorama — faded]</text></svg>" alt="panorama" data-caption="panorama — faded" onclick="openModal(this)"><div class="caption">panorama — faded</div></div>
-
-          <div class="photo frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%230b0606'/><text x='50' y='80' fill='%23e0e0e0' font-family='monospace' font-size='20'>[paper — stains]</text></svg>" alt="stains" data-caption="paper — stains" onclick="openModal(this)"><div class="caption">paper — stains</div></div>
-
-          <div class="photo frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%23040706'/><text x='48' y='80' fill='%23d8d8d8' font-family='monospace' font-size='20'>[portrait — eyes closed]</text></svg>" alt="portrait" data-caption="portrait — eyes closed" onclick="openModal(this)"><div class="caption">portrait — eyes closed</div></div>
-
-          <div class="photo frame-edge"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600'><rect width='100%' height='100%' fill='%23000404'/><text x='50' y='80' fill='%23e5e5e5' font-family='monospace' font-size='20'>[street — empty]</text></svg>" alt="street" data-caption="street — empty" onclick="openModal(this)"><div class="caption">street — empty</div></div>
-
-        </div>
-      </section>
-
-      <!-- Section: longer archive text area with columns for reading -->
-      <section>
-        <h2>ledger</h2>
-        <div class="columns">
-          <p>There are more pages below. The ledger records fragments: dates erased, numbers crossed out. Some notes are legible; many are not. The reader is invited to make of them what they will.</p>
-
-          <p>Writing is occasionally interspersed with lists of names — names that may not mean anything here, names that may simply be placeholders for things that used to be important.</p>
-
-          <p>Below, find transcripts, small cipher fragments, and a few attachments. Each is intentionally ambiguous; none are instructions.</p>
-        </div>
-      </section>
-
-      <!-- Section: attachments and cipher playground -->
-      <section>
-        <h2>attachments</h2>
-
-        <div style="display:flex;gap:18px;flex-wrap:wrap">
-          <div class="panel" style="flex:1 1 560px">
-            <div class="muted">transmission</div>
-            <div class="cipher" id="cipher">U2FsdGVkX1+Zq7f9d3a1f9e8b7c6a5b4c3d2e1f0</div>
-            <div class="controls">
-              <button onclick="attemptDecode()">attempt decode</button>
-              <button onclick="scramble()">scramble</button>
-              <button onclick="downloadPreview('manifest.txt')">preview manifest</button>
-            </div>
-            <div class="meta" style="margin-top:10px">decoded: <span id="decoded">—</span></div>
-          </div>
-
-          <div class="panel" style="width:320px">
-            <div class="muted">files</div>
-            <ul style="padding-left:18px;margin-top:10px">
-              <li><button onclick="downloadPreview('notes.txt')">notes.txt</button></li>
-              <li><button onclick="downloadPreview('observ.dat')">observ.dat</button></li>
-              <li><button onclick="downloadPreview('photo_01.pnm')">photo_01.pnm</button></li>
-              <li><button onclick="downloadPreview('index.lock')">index.lock</button></li>
-            </ul>
-            <div class="meta" style="margin-top:8px">previews are intentionally vague.</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- bottom panels: clues and registry -->
-      <section>
-        <div class="bottom">
-          <div class="panel">
-            <div class="muted">clues</div>
-            <ol style="margin-top:8px;color:var(--accent)">
-              <li>follow the line of small scratches</li>
-              <li>the date is not the only number</li>
-              <li>where letters go missing, listen</li>
-            </ol>
-            <p class="meta" style="margin-top:8px">hints are poetic, not prescriptive.</p>
-          </div>
-
-          <div class="panel">
-            <div class="muted">registry</div>
-            <div class="cipher">#a9f3: 7b1c 11df 0a99 33ee</div>
-            <div class="meta" style="margin-top:8px">entries are preserved as fragments.</div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <h2>polaroids</h2>
-        <p class="meta">these look like old instant prints. each preview is a stylized representation; replace with real scans if you have them.</p>
-
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px">
-          <div class="polaroid panel">
-            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='720'><rect width='100%' height='100%' fill='%23efe7d6'/><rect x='22' y='22' width='556' height='420' fill='%23050905'/><text x='36' y='64' fill='%236b4f2b' font-family='monospace' font-size='16'>[polaroid 01]</text></svg>" alt="polaroid 1">
-            <div class="note">polaroid 01 — margin note</div>
-          </div>
-
-          <div class="polaroid panel">
-            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='720'><rect width='100%' height='100%' fill='%23efe7d6'/><rect x='22' y='22' width='556' height='420' fill='%23020101'/><text x='36' y='64' fill='%236b4f2b' font-family='monospace' font-size='16'>[polaroid 02]</text></svg>" alt="polaroid 2">
-            <div class="note">polaroid 02 — smudged inscription</div>
-          </div>
-
-          <div class="polaroid panel">
-            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='720'><rect width='100%' height='100%' fill='%23efe7d6'/><rect x='22' y='22' width='556' height='420' fill='%23020403'/><text x='36' y='64' fill='%236b4f2b' font-family='monospace' font-size='16'>[polaroid 03]</text></svg>" alt="polaroid 3">
-            <div class="note">polaroid 03 — tape on corner</div>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <h2>ledger end</h2>
-        <p class="meta">the page continues below; older items can be appended here. replace the SVG placeholders with scans for a more authentic look.</p>
-      </section>
-
-    </main>
-
-    <footer>—</footer>
-  </div>
-
-  <!-- modal for images -->
-  <div class="modal" id="modal" role="dialog" aria-hidden="true">
-    <div class="view">
-      <button class="close" onclick="closeModal()">✕</button>
-      <img id="modalImg" src="" alt="expanded">
-      <div id="modalCaption" style="position:absolute;left:12px;bottom:12px;color:var(--muted);font-size:13px"></div>
+      </div>
     </div>
+
+    <div class="grid">
+      <section class="archive" id="archive">
+        <h2 style="margin:0 0 8px 0">threads</h2>
+        <div class="thread" data-id="t1" onclick="openThread('t1')">
+          <h3>thread — 01</h3>
+          <p>faint footsteps, a ledger entry, a name that keeps returning.</p>
+        </div>
+        <div class="thread" data-id="t2" onclick="openThread('t2')">
+          <h3>thread — 02</h3>
+          <p>a photograph with its corner torn; the image seems restless.</p>
+        </div>
+        <div class="thread" data-id="t3" onclick="openThread('t3')">
+          <h3>thread — 03</h3>
+          <p>overheard phrase: "count the breaths" — always out of sync.</p>
+        </div>
+
+        <div class="entries" id="entries">
+          <div class="entry">ledger item: <em>fragment &middot; 04/19</em> — ink stained.</div>
+          <div class="entry">ledger item: <em>fragment &middot; 07/02</em> — margin scratched.</div>
+        </div>
+
+        <div class="strip" id="strip">
+          <div class="thumb" onclick="openImage('thumb1')"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23050505'/><text x='20' y='40' fill='%23dcdcdc' font-family='monospace' font-size='18'>scan — 01</text></svg>" alt="scan 1"></div>
+          <div class="thumb" onclick="openImage('thumb2')"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23030503'/><text x='20' y='40' fill='%23e0e0e0' font-family='monospace' font-size='18'>scan — 02</text></svg>" alt="scan 2"></div>
+          <div class="thumb" onclick="openImage('thumb3')"><img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='100%' height='100%' fill='%23010706'/><text x='20' y='40' fill='%23e5e5e5' font-family='monospace' font-size='18'>scan — 03</text></svg>" alt="scan 3"></div>
+        </div>
+
+        <div class="reveal">
+          <div class="hint">interaction log</div>
+          <div id="log" class="muted" style="margin-top:8px">no actions recorded yet — touch the canvas or a thread.</div>
+
+          <div class="secret" id="secret">the ledger hums: 'you are not the first to listen'</div>
+        </div>
+
+      </section>
+
+      <aside class="side">
+        <div style="margin-bottom:12px">
+          <div class="muted">controls</div>
+          <div style="margin-top:8px">
+            <button class="btn" onclick="revealSecret()">reveal</button>
+            <button class="btn" onclick="shuffleThreads()">shuffle</button>
+            <button class="btn" onclick="clearLog()">clear log</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="muted">notes</div>
+          <div style="margin-top:8px;color:var(--muted);font-size:13px">This environment is exploratory. Nothing here instructs or encourages real-world actions — it's a surface for curiosity.</div>
+        </div>
+
+        <div style="margin-top:14px">
+          <div class="muted">palette</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="width:28px;height:28px;background:#071107;border-radius:4px"></div>
+            <div style="width:28px;height:28px;background:#0b3b34;border-radius:4px"></div>
+            <div style="width:28px;height:28px;background:#1f8b79;border-radius:4px"></div>
+          </div>
+        </div>
+
+      </aside>
+    </div>
+
+    <footer>Resonant Ledger — a single-file exploratory prototype · replace images with scans for fuller texture</footer>
   </div>
 
   <script>
-    // Safety: content remains atmospheric. Interactions only reveal harmless preview text.
+    // -- Interactive visualizer: particle field that reacts to clicks/touches and to the 'threads' --
+    const canvas = document.getElementById('viz');
+    const ctx = canvas.getContext('2d');
+    let DPR = window.devicePixelRatio || 1;
 
-    function openModal(img){
-      const src = img.getAttribute('src');
-      const cap = img.getAttribute('data-caption') || img.alt || '';
-      document.getElementById('modalImg').src = src;
-      document.getElementById('modalCaption').textContent = cap;
-      const m = document.getElementById('modal'); m.classList.add('open'); m.setAttribute('aria-hidden','false');
+    function resize(){
+      const r = canvas.getBoundingClientRect();
+      canvas.width = Math.floor(r.width * DPR);
+      canvas.height = Math.floor(r.height * DPR);
+      ctx.setTransform(DPR,0,0,DPR,0,0);
     }
-    function closeModal(){ const m = document.getElementById('modal'); m.classList.remove('open'); m.setAttribute('aria-hidden','true'); }
+    window.addEventListener('resize', resize);
+    resize();
 
-    // cipher playground (safe: only demonstrates harmless decoding)
-    const cipherEl = document.getElementById('cipher');
-    const decodedEl = document.getElementById('decoded');
-    const blobs = [
-      'VGhlIGxpZ2h0IGlzIGFsbG93ZWQ=',
-      'U29tZSBzaG9ydCBmcmFncw==',
-      'SGVhcnRzIG1ha2Ugbm8gcmVzdA=='
-    ];
-    cipherEl.textContent = blobs[Math.floor(Math.random()*blobs.length)];
-
-    function attemptDecode(){
-      const s = cipherEl.textContent.trim();
-      try{
-        if(/^[A-Za-z0-9+/=\n]+$/.test(s.replace(/\n/g,'')) && s.length % 4 === 0){
-          const dec = atob(s.replace(/\n/g,''));
-          decodedEl.textContent = dec + ' — (fragment)';
-        } else { decodedEl.textContent = '—UNREADABLE—'; }
-      }catch(e){ decodedEl.textContent = '—UNREADABLE—'; }
+    // particle system
+    const particles = [];
+    const MAX = 260;
+    function spawn(x,y,count=6){
+      for(let i=0;i<count;i++){
+        particles.push({x:x + (Math.random()-0.5)*8, y:y + (Math.random()-0.5)*8, vx:(Math.random()-0.5)*1.6, vy:(Math.random()-0.5)*1.6, life:40 + Math.random()*80});
+        if(particles.length>MAX) particles.splice(0,particles.length-MAX);
+      }
     }
 
-    function scramble(){
-      cipherEl.textContent = blobs[Math.floor(Math.random()*blobs.length)]; decodedEl.textContent = '—';
+    function draw(){
+      ctx.clearRect(0,0,canvas.width/DPR,canvas.height/DPR);
+      // subtle grain
+      ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fillRect(0,0,canvas.width/DPR,canvas.height/DPR);
+
+      // background veins
+      for(let i=0;i<6;i++){
+        ctx.beginPath(); ctx.moveTo(i*120 + 30, 20); const cp = 80 + i*30; ctx.quadraticCurveTo(cp,120, canvas.width/DPR - (i*80+60), 220); ctx.strokeStyle = 'rgba(15,40,30,0.04)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+
+      // particles
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life -= 1;
+        const alpha = Math.max(0, p.life/120);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 2.6, 0, Math.PI*2); ctx.fillStyle = 'rgba(143,243,209,'+alpha+')'; ctx.fill();
+        if(p.life<=0) particles.splice(i,1);
+      }
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // interactions
+    canvas.addEventListener('pointerdown', (e)=>{
+      const r = canvas.getBoundingClientRect(); const x = (e.clientX - r.left); const y = (e.clientY - r.top);
+      spawn(x,y,24);
+      logAction('canvas touched at ' + Math.round(x) + ',' + Math.round(y));
+    });
+
+    // control buttons
+    document.getElementById('scatter').addEventListener('click', ()=>{ for(let i=0;i<40;i++) spawn(Math.random()*canvas.width/DPR, Math.random()*canvas.height/DPR, 6); logAction('scatter'); });
+    document.getElementById('weave').addEventListener('click', ()=>{ for(let i=0;i<12;i++) spawn(canvas.width/DPR/2 + Math.sin(i/2)*120, canvas.height/DPR/2 + Math.cos(i/2)*120, 8); logAction('weave'); });
+    document.getElementById('calm').addEventListener('click', ()=>{ particles.splice(0,particles.length); logAction('calm'); });
+
+    // thread interactions
+    function openThread(id){
+      const entries = document.getElementById('entries');
+      const el = document.querySelector('.thread[data-id="'+id+'"]');
+      const title = el.querySelector('h3').textContent;
+      const p = document.createElement('div'); p.className='entry'; p.textContent = title + ' — ' + randomFragment();
+      entries.insertBefore(p, entries.firstChild);
+      spawn(Math.random()*canvas.width/DPR, Math.random()*canvas.height/DPR, 24);
+      logAction('opened ' + id);
     }
 
-    function downloadPreview(name){
-      // show a safe preview instead of real downloads
-      const previews = {
-        'manifest.txt': 'manifest (fragment) — lines erased',
-        'notes.txt': 'notes (fragment) — nothing actionable',
-        'observ.dat': 'binary data — opaque',
-        'photo_01.pnm': 'image preview — low resolution scan'
-      };
-      alert('Preview — ' + name + '\n\n' + (previews[name] || '[opaque]'));
+    function randomFragment(){
+      const F = ['ink bleeds', 'teeth marks on edge', 'count the stitches', 'numbers erased', 'a folded corner', 'smudged signature'];
+      return F[Math.floor(Math.random()*F.length)];
     }
 
-    // visual jitter to keep things alive
-    setInterval(()=>{ if(Math.random()<0.06){ const f=document.querySelector('.frame'); f.style.transform='translate('+(Math.random()*8-4)+'px,'+(Math.random()*6-3)+'px)'; setTimeout(()=>f.style.transform='translate(0,0)',700);} },900);
+    // image viewer stub
+    function openImage(name){
+      logAction('preview ' + name);
+      // quick visual feedback by spawning particles near right edge
+      spawn(canvas.width/DPR*0.78, canvas.height/DPR*0.3, 32);
+    }
+
+    // side controls
+    function revealSecret(){ document.getElementById('secret').classList.toggle('open'); logAction('reveal toggled'); }
+    function shuffleThreads(){ const threads = Array.from(document.querySelectorAll('.thread')); const parent = threads[0].parentNode; while(threads.length) parent.appendChild(threads.splice(Math.floor(Math.random()*threads.length),1)[0]); logAction('threads shuffled'); }
+    function clearLog(){ document.getElementById('log').textContent = 'cleared'; }
+
+    function logAction(s){ const l = document.getElementById('log'); l.textContent = new Date().toLocaleTimeString() + ' — ' + s + '
+' + l.textContent; }
+
+    // small seeded animation on load
+    setTimeout(()=>{ document.getElementById('weave').click(); }, 600);
+
+    // accessibility: keyboard shortcuts
+    window.addEventListener('keydown',(e)=>{
+      if(e.key === '1') document.getElementById('scatter').click();
+      if(e.key === '2') document.getElementById('weave').click();
+      if(e.key === '3') document.getElementById('calm').click();
+    });
 
   </script>
 </body>
