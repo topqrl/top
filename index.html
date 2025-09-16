@@ -3,294 +3,244 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Atlas of Echoes</title>
-  <meta name="description" content="An expansive interactive single-file experience: map, timeline, gallery, and emergent threads." />
-
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
-
+  <title>Echoes & Faces — Interactive Archive</title>
+  <meta name="description" content="Fictional people, an on-page chatbot persona, and a pixel-art face generator — all local and self-contained." />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#040405;--card:#0b0b09;--accent:#8ff3d1;--muted:#7a7a7a;--glass:rgba(255,255,255,0.02);--maxw:1280px}
+    :root{--bg:#050606;--card:#0b0b09;--accent:#8ff3d1;--muted:#7a7a7a}
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0;background:radial-gradient(circle at 12% 8%, rgba(20,20,20,0.6), transparent 12%), linear-gradient(180deg,#020202,#070707 70%);color:var(--accent);font-family:'Space Mono','VT323',monospace}
-    .app{width:min(var(--maxw),96vw);margin:18px auto;padding:18px}
+    body{margin:0;font-family:'Space Mono',monospace;background:linear-gradient(180deg,#020202,#071010);color:var(--accent);padding:20px}
+    .wrap{max-width:1200px;margin:0 auto}
+    header{display:flex;align-items:center;justify-content:space-between}
+    h1{margin:0}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:16px;margin-top:16px}
+    .card{background:var(--card);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
 
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{width:64px;height:64px;border-radius:10px;background:linear-gradient(180deg,#dcdcdc,#bfbfbf);display:flex;align-items:center;justify-content:center;color:#0b0b09;font-weight:700}
-    h1{margin:0;font-size:20px}
-    .subtitle{color:var(--muted);font-size:12px}
+    /* people table */
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03);font-size:14px}
+    button.btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 8px;border-radius:6px;color:var(--accent);cursor:pointer}
 
-    .layout{display:grid;grid-template-columns:1fr 360px;gap:16px;margin-top:14px}
+    /* chat */
+    .chat{display:flex;flex-direction:column;height:520px}
+    .messages{flex:1;overflow:auto;padding:8px;border-radius:6px;background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent)}
+    .input{display:flex;gap:8px;margin-top:8px}
+    .input input{flex:1;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--accent)}
 
-    /* left: the huge interactive area */
-    .stage{background:linear-gradient(180deg,rgba(255,255,255,0.01),transparent);border:1px solid rgba(255,255,255,0.03);border-radius:10px;padding:10px;min-height:720px;position:relative;overflow:hidden}
-    canvas#map{width:100%;height:640px;display:block;border-radius:8px;background:#061010}
+    /* pixel art */
+    .pixel-ui{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .pixel-canvas{image-rendering:pixelated;border-radius:6px;background:#0a0a09;border:1px solid rgba(255,255,255,0.03)}
 
-    .controls{display:flex;gap:8px;margin-top:8px}
-    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:6px;color:var(--accent);cursor:pointer}
+    footer{margin-top:18px;color:var(--muted);font-size:13px}
 
-    /* right: panels */
-    .panel{background:var(--card);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
-    .panel h3{margin:0 0 8px 0}
-    .list{max-height:420px;overflow:auto;padding-right:6px}
-    .item{padding:8px;border-radius:6px;margin-bottom:8px;background:rgba(255,255,255,0.01);cursor:pointer}
-    .meta{font-size:12px;color:var(--muted)}
-
-    /* timeline */
-    .timeline{margin-top:12px;display:flex;gap:8px;align-items:center}
-    input[type=range]{width:100%}
-
-    /* gallery */
-    .gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-    .photo{height:120px;border-radius:6px;overflow:hidden;border:1px solid rgba(255,255,255,0.03);background:#0b0b09;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    .photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(60%) sepia(30%)}
-
-    /* modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.75);z-index:200}
-    .modal.open{display:flex}
-    .modal .card{width:min(920px,94vw);height:min(86vh,800px);background:#051010;border-radius:8px;padding:18px;position:relative}
-    .close{position:absolute;right:12px;top:12px;border:0;background:transparent;color:var(--muted);cursor:pointer}
-
-    footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
-
-    @media (max-width:980px){.layout{grid-template-columns:1fr}.panel{order:2}}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <div class="app">
+  <div class="wrap">
     <header>
-      <div class="brand">
-        <div class="logo">Ae</div>
-        <div>
-          <h1>Atlas of Echoes</h1>
-          <div class="subtitle">explore threads, images, sounds and an emergent map — single-file prototype</div>
-        </div>
+      <div>
+        <h1>Echoes & Faces</h1>
+        <div style="color:var(--muted);font-size:13px">Fictional people, a local chatbot persona, and a pixel-face generator.</div>
       </div>
-
-      <div style="display:flex;gap:8px;align-items:center">
-        <div class="meta">bookmarks: <span id="bm-count">0</span></div>
-        <button class="btn" id="export">export</button>
-        <button class="btn" id="reset">reset</button>
-      </div>
+      <div style="text-align:right;color:var(--muted);font-size:13px">Note: all people & addresses below are fictional — no real addresses are used.</div>
     </header>
 
-    <div class="layout">
+    <div class="grid">
       <div>
-        <div class="stage">
-          <canvas id="map"></canvas>
-          <div class="controls">
-            <button class="btn" id="gen">generate</button>
-            <button class="btn" id="expand">expand</button>
-            <button class="btn" id="compress">compress</button>
-            <button class="btn" id="sound">sound: off</button>
+        <div class="card">
+          <h3 style="margin-top:0">Registry — fictional inhabitants</h3>
+          <div style="margin-bottom:8px;color:var(--muted);font-size:13px">A playful, interactive database of invented people tied to fictional locations. You can inspect each profile or ask the chatbot about the echoes related to them.</div>
+
+          <table id="people">
+            <thead><tr><th>Name</th><th>Location</th><th>Note</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn" onclick="addBatch()">add batch</button>
+            <button class="btn" onclick="shufflePeople()">shuffle</button>
+            <button class="btn" onclick="exportData()">export JSON</button>
           </div>
-          <div style="position:absolute;left:12px;bottom:12px;font-size:12px;color:var(--muted)">interact: click nodes, drag, use timeline</div>
         </div>
 
-        <div style="display:flex;gap:12px;margin-top:10px">
-          <div style="flex:1" class="panel">
-            <h3>timeline</h3>
-            <div class="timeline">
-              <input type="range" id="time" min="0" max="100" value="50">
-            </div>
-            <div class="meta" style="margin-top:8px">move the timeline to reveal older or newer echoes</div>
-          </div>
-
-          <div style="width:260px" class="panel">
-            <h3>search</h3>
-            <input id="search" placeholder="search threads..." style="width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--accent)">
-            <div class="meta" style="margin-top:6px">type and press enter</div>
-          </div>
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">Echo Database</h3>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:8px">Each person has 'echoes' — short fragments, timestamps and tags. Explore or append to them. All data is local to your browser.</div>
+          <div id="echoArea"></div>
         </div>
 
       </div>
 
       <aside>
-        <div class="panel">
-          <h3>threads</h3>
-          <div class="list" id="threads"></div>
+        <div class="card chat">
+          <h3 style="margin:0 0 8px 0">Chat with Mina (persona)</h3>
+          <div class="messages" id="messages"></div>
+          <div class="input">
+            <input id="chatIn" placeholder="Say something to Mina... (she's fictional)" />
+            <button class="btn" onclick="sendChat()">send</button>
+          </div>
+          <div style="margin-top:8px;color:var(--muted);font-size:12px">Mina is a local, rule-based persona — no external AI services are used. She roleplays as a resident archivist and speaks only in-character.</div>
         </div>
 
-        <div class="panel" style="margin-top:12px">
-          <h3>gallery</h3>
-          <div class="gallery" id="gallery"></div>
+        <div class="card" style="margin-top:12px">
+          <h3 style="margin-top:0">Pixel Faces</h3>
+          <canvas id="pixel" width="128" height="128" class="pixel-canvas"></canvas>
+          <div class="pixel-ui">
+            <button class="btn" onclick="genFace()">generate</button>
+            <button class="btn" onclick="downloadFace()">download</button>
+            <label style="color:var(--muted);font-size:13px">size</label>
+            <select id="pxsize"><option>8</option><option selected>16</option><option>32</option></select>
+          </div>
+          <div style="margin-top:8px;color:var(--muted);font-size:12px">Faces are algorithmically generated pixel-art portraits. They are abstract and fictional.</div>
         </div>
       </aside>
     </div>
 
-    <footer>Atlas of Echoes — interactive single-file demo · replace placeholders with your media to personalize</footer>
-  </div>
-
-  <div class="modal" id="modal" aria-hidden="true">
-    <div class="card">
-      <button class="close" id="close">✕</button>
-      <div id="modal-body" style="height:100%"></div>
-    </div>
+    <footer>Local demo — all data stays in your browser. Do not use for real-world deception.</footer>
   </div>
 
   <script>
     /*
-      Atlas of Echoes - single-file interactive experience
-      Features implemented here:
-      - Procedural node map (canvas) with particles/links
-      - Nodes represent 'threads' with metadata
-      - Timeline filter (simple time slider)
-      - Search threads, open thread to add entries
-      - Gallery with placeholder images (SVG data URIs) and modal viewer
-      - Bookmarks stored in localStorage, export/import snapshot
-      - Simple sound toggle (uses WebAudio oscillator as ambient tone)
-
-      This file is intentionally self-contained and safe. Replace placeholder images with your own files.
+      IMPORTANT SAFETY NOTE (and design choice):
+      - I will NOT create false records that tie fabricated people to real, specific private addresses or real individuals.
+      - This page instead uses entirely fictional place names (e.g. "Old Hollow", "North Meridian") so no real address is implicated.
+      - The chatbot is a local, scripted persona (no external API calls). It roleplays safely and cannot be used to plan or commit wrongdoing.
     */
 
-    // ---------- data model ----------
-    let nodes = []; // {id,x,y,label,timestamp,desc,bookmarked}
-    const MAX_NODES = 40;
+    // --- data store (local only) ---
+    const peopleTbody = document.querySelector('#people tbody');
+    const echoArea = document.getElementById('echoArea');
 
-    // utility
-    function rnd(min,max){return Math.random()*(max-min)+min}
-    function uid(prefix='n'){return prefix + Math.random().toString(36).slice(2,9)}
+    let people = [];
 
-    // seed nodes
-    function seed(n=20){
-      nodes = [];
-      for(let i=0;i<n;i++){
-        const t = Math.floor(rnd(0,100));
-        nodes.push({id:uid(), x:rnd(80,1100), y:rnd(60,520), label:'echo — '+(i+1), timestamp:t, desc:'fragment '+(i+1), bookmarked:false});
-      }
-      renderThreads(); renderGallery(); draw(); saveState();
-    }
-
-    // ---------- canvas map ----------
-    const canvas = document.getElementById('map');
-    const ctx = canvas.getContext('2d');
-    let DPR = window.devicePixelRatio || 1;
-
-    function resize(){
-      const r = canvas.getBoundingClientRect();
-      canvas.width = Math.floor(r.width * DPR);
-      canvas.height = Math.floor(r.height * DPR);
-      ctx.setTransform(DPR,0,0,DPR,0,0);
-      draw();
-    }
-    window.addEventListener('resize', resize);
-
-    // particle-like nodes rendering
-    let dragging = null; let offset = {x:0,y:0};
-
-    function draw(){
-      if(!canvas.width) return; // not ready
-      ctx.clearRect(0,0,canvas.width/DPR,canvas.height/DPR);
-      // background grid
-      ctx.fillStyle = '#041414'; ctx.fillRect(0,0,canvas.width/DPR,canvas.height/DPR);
-      for(let x=0;x<canvas.width/DPR;x+=60){ ctx.fillStyle='rgba(0,0,0,0.04)'; ctx.fillRect(x,0,1,canvas.height/DPR); }
-
-      // draw links (distance-based)
-      for(let i=0;i<nodes.length;i++){
-        for(let j=i+1;j<nodes.length;j++){
-          const a = nodes[i], b = nodes[j];
-          const dx=a.x-b.x, dy=a.y-b.y; const d=Math.sqrt(dx*dx+dy*dy);
-          if(d<220){ ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.strokeStyle='rgba(143,243,209,'+ (0.08 + (220-d)/220*0.12) +')'; ctx.lineWidth=1; ctx.stroke(); }
-        }
-      }
-
-      // draw nodes
-      nodes.forEach(n=>{
-        ctx.beginPath(); ctx.arc(n.x,n.y,8,0,Math.PI*2); ctx.fillStyle = n.bookmarked ? 'rgba(255,210,120,0.95)' : 'rgba(143,243,209,0.95)'; ctx.fill();
-        ctx.font = '11px Space Mono, monospace'; ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillText(n.label, n.x+12, n.y+4);
-      });
-    }
-
-    canvas.addEventListener('pointerdown',(e)=>{
-      const r = canvas.getBoundingClientRect(); const x=(e.clientX-r.left), y=(e.clientY-r.top);
-      // find node within 12px
-      for(let n of nodes){ if(Math.hypot(n.x-x,n.y-y) < 12){ dragging=n; offset.x = n.x-x; offset.y = n.y-y; break; } }
-      if(!dragging){ // create a new node at pointer
-        const newNode = {id:uid(), x:x, y:y, label:'echo — new', timestamp:Math.floor(rnd(0,100)), desc:'a fresh fragment', bookmarked:false};
-        nodes.push(newNode); renderThreads(); renderGallery(); saveState(); draw(); log('created '+newNode.label);
-      }
-    });
-    canvas.addEventListener('pointermove',(e)=>{ if(dragging){ const r = canvas.getBoundingClientRect(); dragging.x = (e.clientX-r.left)+offset.x; dragging.y = (e.clientY-r.top)+offset.y; draw(); } });
-    window.addEventListener('pointerup',()=>{ if(dragging) { log('moved '+dragging.label); saveState(); dragging=null; } });
-
-    // ---------- threads list & interactions ----------
-    const threadsEl = document.getElementById('threads');
-    function renderThreads(filter=''){
-      threadsEl.innerHTML = '';
-      const sorted = nodes.slice().sort((a,b)=>b.timestamp-a.timestamp);
-      sorted.filter(n=> n.label.toLowerCase().includes(filter.toLowerCase())).forEach(n=>{
-        const div = document.createElement('div'); div.className='item'; div.tabIndex=0;
-        div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+n.label+'</strong><div class="meta">t:'+n.timestamp+' — '+n.desc+'</div></div><div><button class="btn" data-id="'+n.id+'">☆</button></div></div>';
-        div.querySelector('button').addEventListener('click',(e)=>{ e.stopPropagation(); toggleBookmark(n.id); });
-        div.addEventListener('click',()=>openThread(n.id));
-        threadsEl.appendChild(div);
-      });
-      document.getElementById('bm-count').textContent = nodes.filter(n=>n.bookmarked).length;
-    }
-
-    function openThread(id){ const n = nodes.find(x=>x.id===id); if(!n) return; openModal('<h2>'+n.label+'</h2><p class="meta">timestamp: '+n.timestamp+'</p><p style="margin-top:12px">'+n.desc+'</p><div style="margin-top:12px"><button class="btn" onclick="appendEntry(\''+id+'\')">append entry</button> <button class="btn" onclick="toggleBookmark(\''+id+'\')">bookmark</button></div>'); }
-
-    window.appendEntry = function(id){ const n = nodes.find(x=>x.id===id); if(!n) return; n.desc += ' • ' + ['ink','smudge','fold','scratch'][Math.floor(Math.random()*4)]; renderThreads(); saveState(); closeModal(); log('appended to '+n.label); }
-
-    // ---------- gallery ----------
-    const galleryEl = document.getElementById('gallery');
-    const placeholders = [
-      '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#080808"/><text x="28" y="48" fill="#dcdcdc" font-family="monospace" font-size="22">scan — corridor</text></svg>',
-      '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#060404"/><text x="28" y="48" fill="#e0e0e0" font-family="monospace" font-size="22">scan — portrait</text></svg>',
-      '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#050707"/><text x="28" y="48" fill="#d8d8d8" font-family="monospace" font-size="22">scan — ledger</text></svg>',
-      '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600"><rect width="100%" height="100%" fill="#070605"/><text x="28" y="48" fill="#e5e5e5" font-family="monospace" font-size="22">scan — street</text></svg>'
+    const fictionalPlaces = [
+      'Old Hollow', 'North Meridian', 'Grey Wharf', 'Upper Tangle', 'Salt Verge', 'Moonford', 'Eastgate', 'Riverspan'
     ];
 
-    function renderGallery(){ galleryEl.innerHTML=''; placeholders.forEach((p,i)=>{ const div=document.createElement('div'); div.className='photo'; const img=document.createElement('img'); img.src='data:image/svg+xml;utf8,'+encodeURIComponent(p); img.alt='photo '+(i+1); div.appendChild(img); div.addEventListener('click',()=>openModal('<img src="'+img.src+'" style="width:100%;height:100%"><div class="meta" style="margin-top:8px">photo '+(i+1)+'</div>')); galleryEl.appendChild(div); }); }
+    const firstNames = ['Ada','Mina','Jonah','Etta','Silas','Rook','Ivy','Cormac','Nora','Eloi','Thess','Bram'];
+    const lastNames = ['Holloway','Marrow','Evers','Locke','Dun','Grey','Fletcher','Cairn','Bexley','Arden'];
 
-    // ---------- modal ----------
-    const modal = document.getElementById('modal'); const modalBody = document.getElementById('modal-body'); document.getElementById('close').addEventListener('click', closeModal);
-    function openModal(html){ modalBody.innerHTML = html; modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
-    function closeModal(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+    function randItem(a){return a[Math.floor(Math.random()*a.length)];}
 
-    // ---------- bookmarks & storage ----------
-    function toggleBookmark(id){ const n = nodes.find(x=>x.id===id); if(!n) return; n.bookmarked = !n.bookmarked; renderThreads(); saveState(); }
+    function makePerson(){
+      const name = randItem(firstNames) + ' ' + randItem(lastNames);
+      const location = randItem(fictionalPlaces) + ' — district ' + Math.floor(Math.random()*12+1);
+      const id = 'p_'+Math.random().toString(36).slice(2,9);
+      const echoes = [];
+      // seed a few echoes
+      for(let i=0;i<Math.floor(Math.random()*4)+1;i++) echoes.push({time:Date.now()-Math.floor(Math.random()*1000*60*60*24*90), text:randEcho(), tags:sampleTags()});
+      return {id,name,location,echoes};
+    }
 
-    function saveState(){ try{ localStorage.setItem('atlas.nodes', JSON.stringify(nodes)); }catch(e){} }
-    function loadState(){ try{ const s = localStorage.getItem('atlas.nodes'); if(s){ nodes = JSON.parse(s); renderThreads(); renderGallery(); draw(); return true; } }catch(e){} return false; }
+    function randEcho(){
+      const fragments = ['a folded paper','a half-remembered song','the smell of rain on tar','a ledger with names crossed out','an empty chair by the window','a tally of uncounted things'];
+      return randItem(fragments);
+    }
+    function sampleTags(){ const t=['paper','sound','photo','note','mark']; return [randItem(t)]; }
 
-    document.getElementById('export').addEventListener('click', ()=>{ const data = JSON.stringify({nodes}); const blob = new Blob([data],{type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download='atlas-export.json'; a.click(); URL.revokeObjectURL(url); });
+    function renderPeople(){
+      peopleTbody.innerHTML='';
+      people.forEach(p=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.name}</td><td>${p.location}</td><td style="font-size:13px;color:var(--muted)">${p.echoes[0]?p.echoes[0].text:'-'}</td><td><button class='btn' onclick="viewPerson('${p.id}')">view</button></td>`;
+        peopleTbody.appendChild(tr);
+      });
+    }
 
-    document.getElementById('reset').addEventListener('click', ()=>{ if(confirm('Reset Atlas to a new seed?')){ seed(18); } });
+    function viewPerson(id){
+      const p = people.find(x=>x.id===id); if(!p) return;
+      echoArea.innerHTML = `<h4>${p.name}</h4><div class="meta">${p.location}</div><div style="margin-top:8px"><strong>echoes</strong></div>`;
+      p.echoes.slice().reverse().forEach((e,idx)=>{
+        const d = document.createElement('div'); d.style.padding='8px'; d.style.marginTop='8px'; d.style.background='rgba(255,255,255,0.01)'; d.style.borderRadius='6px';
+        d.innerHTML = `<div style="font-size:13px">${new Date(e.time).toLocaleString()}</div><div style="margin-top:6px">${e.text}</div><div style='margin-top:6px;font-size:12px;color:var(--muted)'>tags: ${e.tags.join(', ')}</div><div style='margin-top:6px'><button class='btn' onclick="appendEcho('${p.id}')">append echo</button></div>`;
+        echoArea.appendChild(d);
+      });
+    }
 
-    // search
-    document.getElementById('search').addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ renderThreads(e.target.value); } });
+    window.appendEcho = function(id){ const p = people.find(x=>x.id===id); if(!p) return; p.echoes.push({time:Date.now(), text:randEcho(), tags:sampleTags()}); renderPeople(); viewPerson(id); save(); }
 
-    // timeline
-    document.getElementById('time').addEventListener('input',(e)=>{ const t = parseInt(e.target.value); // filter nodes by timestamp
-      nodes.forEach(n=> n.hidden = n.timestamp > t); renderThreads(); draw(); });
+    function addBatch(n=8){ for(let i=0;i<n;i++) people.push(makePerson()); renderPeople(); save(); }
+    function shufflePeople(){ people = people.sort(()=>Math.random()-0.5); renderPeople(); }
+    function exportData(){ const blob = new Blob([JSON.stringify(people,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='fictional-people.json'; a.click(); }
 
-    // map controls
-    document.getElementById('gen').addEventListener('click', ()=>{ seed(Math.floor(rnd(16,MAX_NODES))); log('generated nodes'); });
-    document.getElementById('expand').addEventListener('click', ()=>{ nodes.forEach(n=>{ n.x += rnd(-40,40); n.y += rnd(-20,20); }); draw(); log('expanded'); saveState(); });
-    document.getElementById('compress').addEventListener('click', ()=>{ nodes.forEach(n=>{ n.x = (n.x-80)*0.9 + 80; n.y = (n.y-60)*0.9 + 60; }); draw(); log('compressed'); saveState(); });
+    function save(){ try{ localStorage.setItem('ef.people', JSON.stringify(people)); }catch(e){} }
+    function load(){ try{ const s=localStorage.getItem('ef.people'); if(s){ people=JSON.parse(s); renderPeople(); return true; } }catch(e){} return false; }
 
-    // sound: simple ambience
-    let audioCtx = null; let osc = null; let playing = false;
-    document.getElementById('sound').addEventListener('click', ()=>{
-      if(!audioCtx){ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-      if(!playing){ osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type='sine'; osc.frequency.value = 110; gain.gain.value = 0.0015; osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); playing=true; document.getElementById('sound').textContent='sound: on'; log('sound on'); } else { osc.stop(); playing=false; document.getElementById('sound').textContent='sound: off'; log('sound off'); }
-    });
+    // initialize
+    if(!load()) addBatch(10);
 
-    // small log
-    function log(s){ const l = document.querySelector('footer'); l.textContent = new Date().toLocaleTimeString() + ' · ' + s; }
+    // --- Chatbot persona (local, scripted) ---
+    // Mina is a roleplay archivist who replies based on patterns and on the registry data.
+    const messagesEl = document.getElementById('messages');
+    function postMessage(who,text){ const d=document.createElement('div'); d.style.margin='8px 0'; d.innerHTML = `<div style='font-size:13px;color:${who==='mina'?'#ffdca3':'#bfeee0'}'><strong>${who==='mina'?'Mina':'You'}</strong> <span style='font-size:12px;color:var(--muted)'>${new Date().toLocaleTimeString()}</span></div><div style='margin-top:6px'>${escapeHtml(text)}</div>`; messagesEl.prepend(d); }
 
-    // initialization
-    if(!loadState()){ seed(18); }
-    resize();
+    function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // animation loop: subtle pulsing
-    setInterval(()=>{ // small organic motion
-      nodes.forEach(n=>{ n.x += Math.sin(Date.now()/10000 + n.x/300)*0.3; n.y += Math.cos(Date.now()/11000 + n.y/300)*0.3; }); draw(); }, 120);
+    function sendChat(){ const inEl=document.getElementById('chatIn'); const t=inEl.value.trim(); if(!t) return; postMessage('you',t); inEl.value=''; // generate Mina response
+      setTimeout(()=>{ const resp = minaRespond(t); postMessage('mina',resp); }, 450 + Math.random()*400);
+    }
 
-    // keyboard shortcuts
-    window.addEventListener('keydown',(e)=>{ if(e.key==='g') document.getElementById('gen').click(); if(e.key==='r') document.getElementById('reset').click(); if(e.key==='e') document.getElementById('expand').click(); if(e.key==='c') document.getElementById('compress').click(); });
+    function minaRespond(txt){ txt = txt.toLowerCase(); // basic pattern responses
+      if(/who|name/.test(txt)) return 'I am Mina, a keeper of small echoes. I listen.';
+      if(/where|live/.test(txt)) return 'Places here are layered. I prefer to speak in fragments about them.';
+      if(/echo|echoes|what happened/.test(txt)) return sampleEchoReply();
+      if(/show|list|people/.test(txt)) return `There are ${people.length} entries in the registry. Ask me about a name.`;
+      if(/help|what can you do/.test(txt)) return 'I can describe registry fragments, recite a short echo, or suggest a name at random.';
+      if(/random|name/.test(txt)) { const p = randItem(people); return `Try ${p.name} of ${p.location}.`; }
+      // fallback: gentle, in-character answer built from registry
+      return randItem(['Fragments gather at the corners.','Numbers and stains, mostly.','Listen: the ledger hums at dusk.','I can offer a hint: count the small scratches.']);
+    }
 
+    function sampleEchoReply(){
+      // pick a recent echo from random person
+      const all = people.flatMap(p=>p.echoes.map(e=>({p,text:e.text,time:e.time}))); if(!all.length) return 'There are no echoes recorded.';
+      const pick = all[Math.floor(Math.random()*all.length)]; return `An echo from ${pick.p.name}: "${pick.text}" (recorded ${timeAgo(pick.time)})`;
+    }
+
+    function timeAgo(ts){ const s=Math.floor((Date.now()-ts)/1000); if(s<60) return s+'s ago'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
+
+    // allow clicking a table row to ask Mina about that person
+    window.viewPerson = function(id){ viewPerson(id); const p = people.find(x=>x.id===id); if(p){ setTimeout(()=>{ postMessage('you','Tell me about '+p.name); postMessage('mina', `I see ${p.name}. A few echoes: ${p.echoes.slice(0,3).map(e=>e.text).join('; ')}`); },200);} }
+
+    // --- Pixel face generator ---
+    const px = document.getElementById('pixel'); const pxCtx = px.getContext('2d');
+    function genFace(){ const size = parseInt(document.getElementById('pxsize').value,10) || 16; const upscale = Math.floor(128/size);
+      // create small image data
+      const w = size, h = size; const img = new Uint8ClampedArray(w*h*4);
+      // palette: skin tones + hair + features
+      const skins = [[226,188,150],[200,150,110],[150,110,90]]; const hairs=[[30,20,10],[60,30,20],[10,40,30]]; const eyes=[ [20,20,20] ];
+      const skin = randItem(skins); const hair = randItem(hairs); const eye = randItem(eyes);
+      // fill background transparent
+      for(let y=0;y<h;y++){
+        for(let x=0;x<w;x++){
+          const i=(y*w+x)*4;
+          // base: skin area in center
+          const cx = x - w/2; const cy = y - h/3; const r = Math.sqrt(cx*cx+cy*cy);
+          if(r < w/2.2){ img[i]=skin[0]; img[i+1]=skin[1]; img[i+2]=skin[2]; img[i+3]=255; } else { img[i]=8; img[i+1]=8; img[i+2]=8; img[i+3]=255; }
+        }
+      }
+      // hair: top band
+      for(let y=0;y<Math.floor(h*0.32);y++) for(let x=1;x<w-1;x++){ const i=(y*w+x)*4; img[i]=hair[0]; img[i+1]=hair[1]; img[i+2]=hair[2]; img[i+3]=255; }
+      // eyes
+      const eyY = Math.floor(h*0.45); const leX = Math.floor(w*0.35); const reX = Math.floor(w*0.65);
+      setPixel(img,w,leX,eyY,eye[0][0],eye[0][1],eye[0][2]); setPixel(img,w,reX,eyY,eye[0][0],eye[0][1],eye[0][2]);
+      // mouth
+      const mY = Math.floor(h*0.65); for(let x=Math.floor(w*0.38);x<Math.floor(w*0.62);x++) setPixel(img,w,x,mY,120,30,30);
+
+      // draw to canvas scaled up
+      pxCtx.imageSmoothingEnabled = false; const imageData = new ImageData(img,w,h); // draw to temp canvas
+      const tmp = document.createElement('canvas'); tmp.width=w; tmp.height=h; const tctx=tmp.getContext('2d'); tctx.putImageData(imageData,0,0);
+      pxCtx.clearRect(0,0,128,128); pxCtx.imageSmoothingEnabled=false; pxCtx.drawImage(tmp,0,0,128,128);
+    }
+    function setPixel(buf,w,x,y,r,g,b){ if(x<0||y<0||x>=w) return; const i=(y*w+x)*4; buf[i]=r; buf[i+1]=g; buf[i+2]=b; buf[i+3]=255; }
+    function downloadFace(){ const a=document.createElement('a'); a.href = px.toDataURL('image/png'); a.download='face.png'; a.click(); }
+
+    // seed for immediate UI
+    genFace();
+
+    // helpers
+    function log(s){ console.log('[echoes] ',s); }
   </script>
 </body>
 </html>
